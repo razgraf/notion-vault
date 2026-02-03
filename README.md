@@ -20,6 +20,8 @@ A vibe-coded, self-hosted viewer for Notion workspace exports. Browse your expor
 - **Image Support** — Inline images and smart gallery for consecutive images
 - **Breadcrumb Navigation** — Always know where you are in the hierarchy
 - **Heading Anchors** — Deep-link to any section
+- **Page Icons** — Display emoji and image icons from Notion
+- **Property Colors** — Colored badges for select/multi-select values in tables
 - **Zero Database** — Everything runs from your static Notion export
 
 ## Getting Started
@@ -28,11 +30,9 @@ A vibe-coded, self-hosted viewer for Notion workspace exports. Browse your expor
 
 1. Open your Notion workspace
 2. Go to **Settings & Members** → **Settings** → **Export all workspace content**
-3. Choose export format:
-   - **Export format:** Markdown & CSV
-   - **Include subpages:** Yes
-   - **Include databases:** Everything
-4. Download and extract the ZIP file
+3. Export with **Markdown & CSV** format (required)
+4. Optionally, export again with **HTML** format for icons and property colors
+5. Download and extract the ZIP file(s)
 
 ### 2. Set Up the Project
 
@@ -45,21 +45,30 @@ cd notion-preview
 bun install
 # or: npm install / pnpm install / yarn
 
-# Copy your Notion export to the data folder
-cp -r /path/to/your/notion-export/* ./data/
+# Copy your Notion exports to the workspace folder
+cp -r /path/to/your/markdown-export/* ./workspace/markdown/
+
+# Optional: Copy HTML export for icons and property colors
+cp -r /path/to/your/html-export/* ./workspace/html/
 ```
 
-Your `data/` folder should look like this:
+Your `workspace/` folder should look like this:
 ```
-data/
-├── index.html          # Required: Navigation structure
-├── Section Name/
-│   ├── Page abc123.md
-│   ├── Page/
-│   │   ├── image.png
-│   │   └── Subpage def456.md
-│   └── Database xyz789.csv
-└── Another Section/
+workspace/
+├── markdown/               # Markdown & CSV export (required)
+│   ├── index.html          # Navigation structure
+│   ├── Section Name/
+│   │   ├── Page abc123.md
+│   │   ├── Page/
+│   │   │   ├── image.png
+│   │   │   └── Subpage def456.md
+│   │   └── Database xyz789.csv
+│   └── Another Section/
+│       └── ...
+└── html/                   # HTML export (optional)
+    ├── index.html          # Alternative navigation source
+    ├── Section Name/
+    │   └── Page abc123.html  # Contains icons and property colors
     └── ...
 ```
 
@@ -82,8 +91,11 @@ Create or edit `notion-preview.config.js` in the project root:
 
 ```js
 module.exports = {
-  // Path to your Notion export folder
-  dataPath: './data',
+  workspace: {
+    markdown: './workspace/markdown',
+    // Optional: HTML export for page icons and property colors
+    // html: './workspace/html',
+  },
 
   // Theme (currently only dark is fully styled)
   theme: 'dark',
@@ -97,6 +109,7 @@ module.exports = {
     breadcrumbs: true,
     imageGallery: true,
     headingAnchors: true,
+    icons: true,
   },
 }
 ```
@@ -135,6 +148,10 @@ src/
 └── lib/
     ├── config.ts               # Configuration loader
     ├── parser/                 # File parsers
+    │   ├── index-html.ts       # Navigation tree parser
+    │   ├── markdown.ts         # Markdown content parser
+    │   ├── csv.ts              # CSV data parser
+    │   └── html-metadata.ts    # HTML metadata extractor (icons, colors)
     └── search/                 # Search index
 ```
 
@@ -142,12 +159,12 @@ src/
 
 ### Vercel / Netlify
 
-1. Push your repository (without the `data/` folder)
+1. Push your repository (without the `workspace/` folder)
 2. Add your Notion export to the deployment or use a custom build step
 3. Deploy as a standard Next.js application
 
 > [!IMPORTANT]
-> 
+>
 > If you deploy this app make sure you're not exposing any pages/content that's private. Clean it up or password-protect it.
 
 ### Self-Hosted
@@ -157,6 +174,20 @@ bun run build
 bun run start
 # or use PM2, Docker, etc.
 ```
+
+## HTML Export (Optional)
+
+The HTML export is optional but enables additional features:
+
+| Feature | Markdown Only | With HTML Export |
+|---------|---------------|------------------|
+| Page content | ✅ | ✅ |
+| Navigation | ✅ | ✅ |
+| Full-text search | ✅ | ✅ |
+| CSV tables | ✅ | ✅ |
+| Images | ✅ | ✅ |
+| Page icons (emoji/image) | ❌ | ✅ |
+| Property colors in tables | ❌ | ✅ |
 
 ## Limitations
 

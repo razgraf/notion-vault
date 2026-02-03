@@ -39,6 +39,7 @@ export async function GET(
     title: pageContent.title,
     content: pageContent.content,
     images: pageContent.images,
+    icon: pageContent.icon,
     filePath,
   })
 }

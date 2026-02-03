@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import Papa from 'papaparse'
-import { getDataPath } from '../config'
+import { getMarkdownPath } from '../config'
 
 export interface CsvData {
   headers: string[]
@@ -14,8 +14,8 @@ export interface CsvPair {
 }
 
 export function parseCsvFile(filePath: string): CsvData | null {
-  const dataPath = getDataPath()
-  const fullPath = path.join(dataPath, filePath)
+  const basePath = getMarkdownPath()
+  const fullPath = path.join(basePath, filePath)
 
   if (!fs.existsSync(fullPath)) {
     return null
@@ -37,15 +37,15 @@ export function parseCsvFile(filePath: string): CsvData | null {
   return { headers, rows }
 }
 
-export function getCsvPair(basePath: string): CsvPair | null {
-  const dataPath = getDataPath()
+export function getCsvPair(csvPath: string): CsvPair | null {
+  const basePath = getMarkdownPath()
 
   // Remove _all suffix if present to get base path
-  const cleanPath = basePath.replace(/_all\.csv$/, '.csv')
+  const cleanPath = csvPath.replace(/_all\.csv$/, '.csv')
   const allPath = cleanPath.replace(/\.csv$/, '_all.csv')
 
-  const filteredFullPath = path.join(dataPath, cleanPath)
-  const allFullPath = path.join(dataPath, allPath)
+  const filteredFullPath = path.join(basePath, cleanPath)
+  const allFullPath = path.join(basePath, allPath)
 
   const hasFiltered = fs.existsSync(filteredFullPath)
   const hasAll = fs.existsSync(allFullPath)
@@ -65,7 +65,7 @@ export function getCsvPair(basePath: string): CsvPair | null {
 }
 
 export function findCsvByUuid(uuid: string): string | null {
-  const dataPath = getDataPath()
+  const basePath = getMarkdownPath()
   const shortUuid = uuid.slice(0, 8)
   const fullUuid = uuid.replace(/-/g, '')
 
@@ -84,7 +84,7 @@ export function findCsvByUuid(uuid: string): string | null {
           nameWithoutExt.includes(fullUuid) ||
           nameWithoutExt.toLowerCase().includes(shortUuid)
         ) {
-          return path.relative(dataPath, entryPath)
+          return path.relative(basePath, entryPath)
         }
       }
     }
@@ -92,5 +92,5 @@ export function findCsvByUuid(uuid: string): string | null {
     return null
   }
 
-  return searchDir(dataPath)
+  return searchDir(basePath)
 }

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
+import path from 'path'
 import { findNodeBySlug, parseIndexHtml } from '@/lib/parser/index-html'
 import { getCsvPair, findCsvByUuid } from '@/lib/parser/csv'
+import { findHtmlFileForCsv, extractPropertyColors } from '@/lib/parser/html-metadata'
+import { getMarkdownPath, getConfig } from '@/lib/config'
 
 export async function GET(
   _request: Request,
@@ -35,9 +38,23 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to read CSV' }, { status: 500 })
   }
 
+  // Extract property colors from HTML if icons feature enabled
+  let propertyColors: Record<string, string> = {}
+  const config = getConfig()
+  if (config.features.icons) {
+    const basePath = getMarkdownPath()
+    const fullCsvPath = path.join(basePath, filePath)
+    const htmlFile = findHtmlFileForCsv(fullCsvPath)
+    if (htmlFile) {
+      const colors = extractPropertyColors(htmlFile)
+      propertyColors = Object.fromEntries(colors)
+    }
+  }
+
   return NextResponse.json({
     filtered: csvPair.filtered,
     all: csvPair.all,
+    propertyColors,
     filePath,
   })
 }

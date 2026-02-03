@@ -18,9 +18,67 @@ interface TableProps {
   all: CsvData
   defaultVariant?: 'filtered' | 'all'
   linkedPages?: ChildNode[]
+  propertyColors?: Record<string, string>
 }
 
-export function Table({ filtered, all, defaultVariant = 'all', linkedPages = [] }: TableProps) {
+const NOTION_COLOR_CLASSES: Record<string, { bg: string; text: string }> = {
+  default: { bg: 'bg-neutral-500/20', text: 'text-neutral-300' },
+  gray: { bg: 'bg-neutral-500/20', text: 'text-neutral-300' },
+  brown: { bg: 'bg-amber-900/30', text: 'text-amber-300' },
+  orange: { bg: 'bg-orange-500/20', text: 'text-orange-300' },
+  yellow: { bg: 'bg-yellow-500/20', text: 'text-yellow-300' },
+  green: { bg: 'bg-green-500/20', text: 'text-green-300' },
+  blue: { bg: 'bg-blue-500/20', text: 'text-blue-300' },
+  purple: { bg: 'bg-purple-500/20', text: 'text-purple-300' },
+  pink: { bg: 'bg-pink-500/20', text: 'text-pink-300' },
+  red: { bg: 'bg-red-500/20', text: 'text-red-300' },
+}
+
+function ColorBadge({ value, color }: { value: string; color?: string }) {
+  const colorClasses = color ? NOTION_COLOR_CLASSES[color] || NOTION_COLOR_CLASSES.default : null
+
+  if (!colorClasses) {
+    return <span>{value}</span>
+  }
+
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${colorClasses.bg} ${colorClasses.text}`}>
+      {value}
+    </span>
+  )
+}
+
+function CellValue({ value, propertyColors }: { value: string; propertyColors?: Record<string, string> }) {
+  if (!propertyColors || !value) {
+    return <>{value || ''}</>
+  }
+
+  // Check if this value has a color assigned
+  const color = propertyColors[value]
+  if (color) {
+    return <ColorBadge value={value} color={color} />
+  }
+
+  // Check if this is a comma-separated list (multi-select)
+  if (value.includes(',')) {
+    const parts = value.split(',').map((v) => v.trim())
+    const hasColors = parts.some((p) => propertyColors[p])
+
+    if (hasColors) {
+      return (
+        <div className="flex flex-wrap gap-1">
+          {parts.map((part, idx) => (
+            <ColorBadge key={idx} value={part} color={propertyColors[part]} />
+          ))}
+        </div>
+      )
+    }
+  }
+
+  return <>{value}</>
+}
+
+export function Table({ filtered, all, defaultVariant = 'all', linkedPages = [], propertyColors }: TableProps) {
   const [variant, setVariant] = useState<'filtered' | 'all'>(defaultVariant)
   const data = variant === 'filtered' ? filtered : all
 
@@ -108,7 +166,7 @@ export function Table({ filtered, all, defaultVariant = 'all', linkedPages = [] 
                       key={header}
                       className="px-3 py-2 text-sm text-text-primary border-b border-border"
                     >
-                      {row[header] || ''}
+                      <CellValue value={row[header] || ''} propertyColors={propertyColors} />
                     </td>
                   ))}
                   {hasLinkedPages && (

@@ -41,8 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 # Notion export data
-/data/*
-/workspace/*
+/workspace/html/*
+/workspace/markdown/*
 
 # Claude Code local settings
 .claude/

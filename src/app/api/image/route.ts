@@ -1,51 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import { getDataPath } from '@/lib/config'
+import fs from "fs";
+import { type NextRequest, NextResponse } from "next/server";
+import path from "path";
+import { getHtmlPath, getMarkdownPath, hasHtmlExport } from "@/lib/config";
 
 const MIME_TYPES: Record<string, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-}
+	".png": "image/png",
+	".jpg": "image/jpeg",
+	".jpeg": "image/jpeg",
+	".gif": "image/gif",
+	".webp": "image/webp",
+	".svg": "image/svg+xml",
+	".ico": "image/x-icon",
+};
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const imagePath = searchParams.get('path')
+	const searchParams = request.nextUrl.searchParams;
+	const imagePath = searchParams.get("path");
 
-  if (!imagePath) {
-    return NextResponse.json({ error: 'Missing path parameter' }, { status: 400 })
-  }
+	if (!imagePath) {
+		return NextResponse.json(
+			{ error: "Missing path parameter" },
+			{ status: 400 },
+		);
+	}
 
-  const dataPath = getDataPath()
-  const decodedPath = decodeURIComponent(imagePath)
-  const fullPath = path.join(dataPath, decodedPath)
+	const markdownPath = getMarkdownPath();
+	const decodedPath = decodeURIComponent(imagePath);
 
-  // Security check: ensure the path is within the data directory
-  const resolvedPath = path.resolve(fullPath)
-  const resolvedDataPath = path.resolve(dataPath)
+	// Try markdown path first (where most images are), then HTML path if available
+	let fullPath = path.join(markdownPath, decodedPath);
 
-  if (!resolvedPath.startsWith(resolvedDataPath)) {
-    return NextResponse.json({ error: 'Invalid path' }, { status: 403 })
-  }
+	if (!fs.existsSync(fullPath) && hasHtmlExport()) {
+		const htmlPath = getHtmlPath();
+		fullPath = path.join(htmlPath, decodedPath);
+	}
 
-  if (!fs.existsSync(resolvedPath)) {
-    return NextResponse.json({ error: 'Image not found' }, { status: 404 })
-  }
+	// Security check: ensure the path is within one of the workspace directories
+	const resolvedPath = path.resolve(fullPath);
+	const resolvedMarkdownPath = path.resolve(markdownPath);
 
-  const ext = path.extname(resolvedPath).toLowerCase()
-  const mimeType = MIME_TYPES[ext] || 'application/octet-stream'
+	let isValidPath = resolvedPath.startsWith(resolvedMarkdownPath);
+	if (!isValidPath && hasHtmlExport()) {
+		const resolvedHtmlPath = path.resolve(getHtmlPath());
+		isValidPath = resolvedPath.startsWith(resolvedHtmlPath);
+	}
 
-  const fileBuffer = fs.readFileSync(resolvedPath)
+	if (!isValidPath) {
+		return NextResponse.json({ error: "Invalid path" }, { status: 403 });
+	}
 
-  return new NextResponse(fileBuffer, {
-    headers: {
-      'Content-Type': mimeType,
-      'Cache-Control': 'public, max-age=31536000, immutable',
-    },
-  })
+	if (!fs.existsSync(resolvedPath)) {
+		return NextResponse.json({ error: "Image not found" }, { status: 404 });
+	}
+
+	const ext = path.extname(resolvedPath).toLowerCase();
+	const mimeType = MIME_TYPES[ext] || "application/octet-stream";
+
+	const fileBuffer = fs.readFileSync(resolvedPath);
+
+	return new NextResponse(fileBuffer, {
+		headers: {
+			"Content-Type": mimeType,
+			"Cache-Control": "public, max-age=31536000, immutable",
+		},
+	});
 }

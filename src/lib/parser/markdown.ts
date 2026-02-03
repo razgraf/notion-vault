@@ -1,11 +1,13 @@
 import fs from 'fs'
 import path from 'path'
-import { getDataPath } from '../config'
+import { getMarkdownPath, getConfig } from '../config'
+import { findHtmlFile, extractPageIcon } from './html-metadata'
 
 export interface PageContent {
   title: string
   content: string
   images: string[]
+  icon?: string
 }
 
 function extractTitleFromContent(content: string): string {
@@ -30,8 +32,8 @@ function extractImages(content: string, basePath: string): string[] {
 }
 
 export function resolveFilePath(relativePath: string): string | null {
-  const dataPath = getDataPath()
-  const fullPath = path.join(dataPath, relativePath)
+  const basePath = getMarkdownPath()
+  const fullPath = path.join(basePath, relativePath)
 
   if (fs.existsSync(fullPath)) {
     return fullPath
@@ -52,11 +54,21 @@ export function readMarkdownFile(filePath: string): PageContent | null {
   const basePath = path.dirname(filePath)
   const images = extractImages(content, basePath)
 
-  return { title, content, images }
+  // Extract icon from HTML file if icons enabled
+  let icon: string | undefined
+  const config = getConfig()
+  if (config.features.icons) {
+    const htmlFile = findHtmlFile(fullPath)
+    if (htmlFile) {
+      icon = extractPageIcon(htmlFile) ?? undefined
+    }
+  }
+
+  return { title, content, images, icon }
 }
 
 export function findFileByUuid(uuid: string): string | null {
-  const dataPath = getDataPath()
+  const basePath = getMarkdownPath()
   const shortUuid = uuid.slice(0, 8)
   const fullUuid = uuid.replace(/-/g, '')
 
@@ -75,7 +87,7 @@ export function findFileByUuid(uuid: string): string | null {
           nameWithoutExt.includes(fullUuid) ||
           nameWithoutExt.toLowerCase().includes(shortUuid)
         ) {
-          return path.relative(dataPath, entryPath)
+          return path.relative(basePath, entryPath)
         }
       }
     }
@@ -83,5 +95,5 @@ export function findFileByUuid(uuid: string): string | null {
     return null
   }
 
-  return searchDir(dataPath)
+  return searchDir(basePath)
 }

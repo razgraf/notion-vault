@@ -46,7 +46,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           fields: ['title', 'content'],
           storeFields: ['title', 'slug', 'type'],
           searchOptions: {
-            boost: { title: 2 },
+            boost: { title: 10 },
             fuzzy: 0.2,
             prefix: true,
           },

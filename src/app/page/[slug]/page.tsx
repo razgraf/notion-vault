@@ -17,6 +17,7 @@ interface PageData {
   title: string
   content: string
   images: string[]
+  icon?: string
   filePath: string
 }
 
@@ -28,6 +29,7 @@ interface CsvData {
 interface CsvPair {
   filtered: CsvData
   all: CsvData
+  propertyColors?: Record<string, string>
   filePath: string
 }
 
@@ -111,6 +113,7 @@ export default function Page({ params }: { params: Promise<{ slug: string }> }) 
             filtered={csvData.filtered}
             all={csvData.all}
             linkedPages={currentNode?.children.filter((c) => !c.isCsv).map((c) => ({ title: c.title, slug: c.slug }))}
+            propertyColors={csvData.propertyColors}
           />
         </div>
       ) : pageData ? (
@@ -119,6 +122,7 @@ export default function Page({ params }: { params: Promise<{ slug: string }> }) 
             content={pageData.content}
             filePath={pageData.filePath}
             navTree={workspace?.tree || []}
+            icon={pageData.icon}
           />
           {/* Show children table below content if page has children */}
           {currentNode && currentNode.children.length > 0 && (

@@ -18,16 +18,17 @@ src/
 ├── components/            # React components (Sidebar, PageContent, Table, SearchModal)
 └── lib/
     ├── config.ts          # Loads notion-preview.config.js
-    ├── parser/            # index.html, markdown, CSV parsers
+    ├── parser/            # index.html, markdown, CSV, HTML metadata parsers
     └── search/            # MiniSearch full-text search
 ```
 
 ## Key Files
 
-- `notion-preview.config.js` — User configuration (dataPath, features)
-- `data/index.html` — Source of truth for navigation tree (from Notion export)
-- `data/**/*.md` — Markdown pages
-- `data/**/*.csv` — Database exports
+- `notion-preview.config.js` — User configuration (workspace paths, features)
+- `workspace/html/index.html` — Source of truth for navigation tree (from HTML export)
+- `workspace/markdown/**/*.md` — Markdown pages
+- `workspace/markdown/**/*.csv` — Database exports
+- `workspace/html/**/*.html` — HTML pages (for icons and property colors)
 
 ## Commands
 
@@ -42,7 +43,13 @@ bun run lint     # ESLint
 - Use `bun` for all package operations
 - Prefer Tailwind utility classes over custom CSS
 - Components use 'use client' directive when needed
-- API routes read from `/data` folder at runtime (no hardcoded paths)
+- API routes read from `/workspace` folder at runtime
+
+## Workspace Structure
+
+The app uses a hybrid data source:
+- **Markdown export** (`workspace/markdown/`): Content, CSV data
+- **HTML export** (`workspace/html/`): Navigation tree, icons, property colors
 
 ## Notion Dark Theme Colors
 
@@ -58,6 +65,7 @@ bun run lint     # ESLint
 
 ## Testing Changes
 
-1. Ensure `data/` folder has a valid Notion export with `index.html`
+1. Ensure `workspace/` has valid Notion exports (markdown and html folders)
 2. Run `bun run dev` and check http://localhost:3000
 3. Verify: sidebar navigation, page rendering, images, search (Cmd+K)
+4. Test icons: pages should show emoji/image icons in sidebar and page headers

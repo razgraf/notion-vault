@@ -11,7 +11,7 @@
   --hover: rgba(255, 255, 255, 0.06);
 
   --sidebar-width: 260px;
-  --content-max-width: 720px;
+  --content-max-width: 900px;
 }
 
 @theme inline {
@@ -182,6 +182,18 @@ code {
   font-weight: 600;
 }
 
+.prose td p:last-child,
+.prose td ul:last-child,
+.prose td ol:last-child {
+  margin-bottom: 0;
+}
+
+.prose td p:first-child,
+.prose td ul:first-child,
+.prose td ol:first-child {
+  margin-top: 0;
+}
+
 .prose a {
   color: var(--accent);
 }
@@ -268,7 +280,7 @@ details[open] summary {
 /* Broken link indicator */
 .broken-link {
   color: var(--text-secondary);
-  text-decoration: line-through;
+  cursor: not-allowed;
 }
 
 /* External link icon */
