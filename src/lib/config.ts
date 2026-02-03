@@ -22,6 +22,7 @@ export interface NotionPreviewConfig {
 const defaultConfig: NotionPreviewConfig = {
 	workspace: {
 		markdown: "./workspace/markdown",
+		html: "./workspace/html",
 	},
 	theme: "dark",
 	defaultCsvVariant: "all",

@@ -1,11 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 
 interface CsvData {
   headers: string[]
   rows: Record<string, string>[]
+}
+
+// Date column names to look for (in priority order)
+const DATE_COLUMNS = ['Created At', 'Created at', 'Created Time', 'Created time', 'Date', 'Created']
+
+function parseDate(dateStr: string): number {
+  if (!dateStr) return 0
+  const parsed = Date.parse(dateStr)
+  return isNaN(parsed) ? 0 : parsed
+}
+
+function sortRowsByDate(rows: Record<string, string>[], headers: string[]): Record<string, string>[] {
+  // Find the first matching date column
+  const dateColumn = DATE_COLUMNS.find(col => headers.includes(col))
+  if (!dateColumn) return rows
+
+  return [...rows].sort((a, b) => {
+    const dateA = parseDate(a[dateColumn])
+    const dateB = parseDate(b[dateColumn])
+    return dateB - dateA // Descending (newest first)
+  })
 }
 
 interface ChildNode {
@@ -80,7 +101,13 @@ function CellValue({ value, propertyColors }: { value: string; propertyColors?: 
 
 export function Table({ filtered, all, defaultVariant = 'all', linkedPages = [], propertyColors }: TableProps) {
   const [variant, setVariant] = useState<'filtered' | 'all'>(defaultVariant)
-  const data = variant === 'filtered' ? filtered : all
+  const rawData = variant === 'filtered' ? filtered : all
+
+  // Sort rows by date if a date column exists
+  const data = useMemo(() => ({
+    headers: rawData.headers,
+    rows: sortRowsByDate(rawData.rows, rawData.headers)
+  }), [rawData])
 
   const hasMultipleVariants =
     JSON.stringify(filtered) !== JSON.stringify(all)
