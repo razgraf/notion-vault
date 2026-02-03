@@ -53,12 +53,12 @@ export function buildSearchIndex(): void {
   const nodes = flattenTree(workspace.tree)
 
   documents = nodes
-    .filter((node) => node.filePath && !node.isExternal)
+    .filter((node) => !node.isExternal && (node.filePath || node.children.length > 0))
     .map((node) => ({
       id: node.id,
       title: node.title,
       slug: node.slug,
-      content: extractContent(node),
+      content: node.filePath ? extractContent(node) : '',
       type: node.isCsv ? 'csv' as const : 'page' as const,
     }))
 
@@ -66,7 +66,7 @@ export function buildSearchIndex(): void {
     fields: ['title', 'content'],
     storeFields: ['title', 'slug', 'type'],
     searchOptions: {
-      boost: { title: 2 },
+      boost: { title: 10 },
       fuzzy: 0.2,
       prefix: true,
     },
