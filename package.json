@@ -1,5 +1,5 @@
 {
-  "name": "notion-preview",
+  "name": "notion-mirror",
   "version": "0.1.0",
   "description": "A self-hosted viewer for Notion workspace exports with dark-mode aesthetics",
   "author": "razgraf",
@@ -13,12 +13,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/razgraf/notion-preview"
+    "url": "https://github.com/razgraf/notion-mirror"
   },
   "bugs": {
-    "url": "https://github.com/razgraf/notion-preview/issues"
+    "url": "https://github.com/razgraf/notion-mirror/issues"
   },
-  "homepage": "https://github.com/razgraf/notion-preview#readme",
+  "homepage": "https://github.com/razgraf/notion-mirror#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

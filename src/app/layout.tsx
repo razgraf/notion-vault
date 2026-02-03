@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Notion Vault',
+  title: 'Notion Mirror',
   description: 'View Notion workspace exports with dark-mode aesthetics',
   icons: {
     icon: [

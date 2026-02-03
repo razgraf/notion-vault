@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/cover.jpg" alt="Notion Vault" width="100%" />
+  <img src="public/cover.jpg" alt="Notion Mirror" width="100%" />
 </p>
 
-# Notion Vault
+# Notion Mirror
 
 A vibe-coded, self-hosted viewer for Notion workspace exports. Browse your exported Notion content with dark-mode aesthetics, full-text search, and a familiar navigation experience.
 
@@ -38,8 +38,8 @@ A vibe-coded, self-hosted viewer for Notion workspace exports. Browse your expor
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/notion-preview.git
-cd notion-preview
+git clone https://github.com/your-username/notion-mirror.git
+cd notion-mirror
 
 # Install dependencies
 bun install
@@ -85,34 +85,6 @@ bun run start
 
 Open [http://localhost:3000](http://localhost:3000) to browse your workspace.
 
-## Configuration
-
-Create or edit `notion-preview.config.js` in the project root:
-
-```js
-module.exports = {
-  workspace: {
-    markdown: './workspace/markdown',
-    // Optional: HTML export for page icons and property colors
-    // html: './workspace/html',
-  },
-
-  // Theme (currently only dark is fully styled)
-  theme: 'dark',
-
-  // Default CSV view: 'all' or 'filtered'
-  defaultCsvVariant: 'all',
-
-  // Feature toggles
-  features: {
-    search: true,
-    breadcrumbs: true,
-    imageGallery: true,
-    headingAnchors: true,
-    icons: true,
-  },
-}
-```
 
 ## Tech Stack
 

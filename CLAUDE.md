@@ -1,4 +1,4 @@
-# Notion Vault
+# Notion Mirror
 
 A self-hosted viewer for Notion workspace exports with dark-mode aesthetics.
 
@@ -17,14 +17,12 @@ src/
 │   └── page/[slug]/       # Dynamic page route
 ├── components/            # React components (Sidebar, PageContent, Table, SearchModal)
 └── lib/
-    ├── config.ts          # Loads notion-preview.config.js
     ├── parser/            # index.html, markdown, CSV, HTML metadata parsers
     └── search/            # MiniSearch full-text search
 ```
 
 ## Key Files
 
-- `notion-preview.config.js` — User configuration (workspace paths, features)
 - `workspace/html/index.html` — Source of truth for navigation tree (from HTML export)
 - `workspace/markdown/**/*.md` — Markdown pages
 - `workspace/markdown/**/*.csv` — Database exports
